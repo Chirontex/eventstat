@@ -23,13 +23,7 @@ class Main extends EntryPoint
 
         new PresenceTable;
 
-        $event = $this->eventCheck();
-
-        if ($event !== 0) {
-
-            //
-
-        }
+        $this->presenceTrackingInit();
         
         return $this;
 
@@ -57,6 +51,36 @@ class Main extends EntryPoint
 
         if (empty($select)) return 0;
         else return (int)$select[0]['post_id'];
+
+    }
+
+    /**
+     * Initialize presence tracking.
+     * @since 0.0.4
+     * 
+     * @return $this
+     */
+    protected function presenceTrackingInit() : self
+    {
+
+        add_filter('the_content', function($content) {
+
+            $user_id = get_current_user_id();
+
+            $event_id = $this->eventCheck();
+
+            if (empty($user_id) ||
+                empty($event_id)) return $content;
+
+            ob_start();
+
+            //
+
+            return ob_get_clean().$content;
+
+        });
+
+        return $this;
 
     }
 
