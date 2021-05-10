@@ -6,6 +6,8 @@
 namespace Eventstat;
 
 use Magnate\EntryPoint;
+use Magnate\Injectors\EntryPointInjector;
+use Magnate\Injectors\AdminPageInjector;
 use Magnate\Exceptions\ActiveRecordCollectionException;
 use Eventstat\Tables\PresenceTable;
 use Eventstat\Models\Presence;
@@ -25,6 +27,27 @@ class Main extends EntryPoint
     {
 
         new PresenceTable;
+
+        new Download(
+            new EntryPointInjector(
+                $this->path,
+                $this->url
+            ),
+            (new AdminPageInjector(
+                'eventstat-download',
+                $this->path.'views/download.php',
+                'Выгрузка статистики мероприятий',
+                'Статистика мероприятий',
+                8,
+                '',
+                $this->url.'assets/icons/clock.svg'
+            ))->addStyle(
+                'bootstrap',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css',
+                [],
+                '5.0.0'
+            )
+        );
 
         $this
             ->apiInit()
