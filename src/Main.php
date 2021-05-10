@@ -6,7 +6,10 @@
 namespace Eventstat;
 
 use Magnate\EntryPoint;
+use Magnate\Exceptions\ActiveRecordCollectionException;
 use Eventstat\Tables\PresenceTable;
+use Eventstat\Models\Presence;
+use WP_REST_Request;
 
 /**
  * Mail entry point class.
@@ -106,6 +109,47 @@ eventstatClient.check(<?= $event_id ?>, <?= $user_id ?>, '<?= md5('eventstat-cli
                 $this->url.'/assets/js/eventstat-client.js',
                 [],
                 '0.0.1'
+            );
+
+        });
+
+        return $this;
+
+    }
+
+    /**
+     * Initialize REST API route.
+     * @since 0.0.7
+     * 
+     * @return $this
+     */
+    protected function apiInit() : self
+    {
+
+        add_action('rest_api_init', function() {
+
+            register_rest_route(
+                'eventstat/v1',
+                '/check',
+                [
+                    'methods' => 'POST',
+                    'callback' => function(WP_REST_Request $request) {
+
+                        $event_id = (int)$request->get_param('eventstat-check-event');
+                        $user_id = (int)$request->get_param('eventstat-check-user');
+
+                        //
+
+                    },
+                    'permission_callback' => function(WP_REST_Request $request) {
+
+                        return $request->get_param('eventstat-check-key') ===
+                            md5('eventstat-client-check-'.
+                                $request->get_param('eventstat-check-event').
+                                '-'.$request->get_param('eventstat-check-user'));
+
+                    }
+                ]
             );
 
         });
