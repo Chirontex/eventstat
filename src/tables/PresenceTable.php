@@ -23,7 +23,8 @@ class PresenceTable extends Migration
         $this->table('eventstat_presence')
             ->field('user_id', 'BIGINT(20) UNSIGNED NOT NULL')
             ->field('event', 'BIGINT(20) UNSIGNED NOT NULL')
-            ->field('presence_time', 'VARCHAR(128) NOT NULL');
+            ->field('presence_time', 'TIME NOT NULL')
+            ->field('last_checking', 'DATETIME NOT NULL');
         
         return $this;
 

@@ -77,11 +77,45 @@ class Main extends EntryPoint
             if (empty($user_id) ||
                 empty($event_id)) return $content;
 
+            $event = get_post($event_id);
+
+            $lag = 3600;
+
+            $start_time = (int)$event->evcal_srow;
+            $end_time = (int)$event->evcal_erow;
+
+            date_default_timezone_set('UTC');
+
+            $start_time = date("Y-m-d H:i:s", $start_time);
+            $end_time = date("Y-m-d H:i:s", $end_time);
+
+            date_default_timezone_set($event->_evo_tz);
+
+            $start_time = strtotime($start_time) - $lag;
+            $end_time = strtotime($end_time) + $lag;
+
+            $now = time();
+
+            if ($now < $start_time ||
+                $now > $end_time) return $content;
+
             ob_start();
 
 ?>
 <script>
-eventstatClient.check(<?= $event_id ?>, <?= $user_id ?>, '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>');
+window.eventstatClient.check(
+    <?= $event_id ?>,
+    <?= $user_id ?>,
+    '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>'
+);
+
+window.addEventListener('beforeunload', function(e) {
+    window.eventstatClient.check(
+        <?= $event_id ?>,
+        <?= $user_id ?>,
+        '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>'
+    );
+}, false);
 </script>
 <?php
 
@@ -138,7 +172,54 @@ eventstatClient.check(<?= $event_id ?>, <?= $user_id ?>, '<?= md5('eventstat-cli
                         $event_id = (int)$request->get_param('eventstat-check-event');
                         $user_id = (int)$request->get_param('eventstat-check-user');
 
-                        //
+                        $now = time();
+
+                        try {
+
+                            $presence = Presence::where(
+                                [
+                                    [
+                                        'user_id' => [
+                                            'condition' => '= %d',
+                                            'value' => $user_id
+                                        ],
+                                        'event' => [
+                                            'condition' => '= %d',
+                                            'value' => $event_id
+                                        ]
+                                    ]
+                                ]
+                            )->first();
+
+                            $presence_time = strtotime($presence->presence_time);
+
+                            $last_checking = strtotime($presence->last_checking);
+
+                            $presence->presence_time = date(
+                                "H:i:s",
+                                $presence_time + ($now - $last_checking)
+                            );
+
+                            $presence->last_checking = date("Y-m-d H:i:s", $now);
+
+                            $presence->save();
+
+                        } catch (ActiveRecordCollectionException $e) {
+
+                            if ($e->getCode() === -9) {
+
+                                $presence = new Presence;
+
+                                $presence->user_id = $user_id;
+                                $presence->event = $event_id;
+                                $presence->presence_time = '00:00:00';
+                                $presence->last_checking = date("Y-m-d H:i:s", $now);
+
+                                $presence->save();
+
+                            } else throw $e;
+
+                        }
 
                     },
                     'permission_callback' => function(WP_REST_Request $request) {
