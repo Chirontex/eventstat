@@ -27,6 +27,7 @@ class Main extends EntryPoint
         new PresenceTable;
 
         $this
+            ->apiInit()
             ->scriptAdd()
             ->presenceTrackingInit();
         
@@ -105,7 +106,7 @@ class Main extends EntryPoint
 ?>
 <script>
 setTimeout(() => {
-    window.eventstatClient.check(
+    eventstatClient.check(
         <?= $event_id ?>,
         <?= $user_id ?>,
         '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>'
@@ -118,7 +119,7 @@ setTimeout(() => {
 
 ?>
 <script>
-window.eventstatClient.check(
+eventstatClient.check(
     <?= $event_id ?>,
     <?= $user_id ?>,
     '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>'
@@ -149,9 +150,9 @@ window.eventstatClient.check(
 
             wp_enqueue_script(
                 'eventstat-client',
-                $this->url.'/assets/js/eventstat-client.js',
+                $this->url.'assets/js/eventstat-client.js',
                 [],
-                '0.0.2'
+                '0.1.2'
             );
 
         });
@@ -177,6 +178,8 @@ window.eventstatClient.check(
                 [
                     'methods' => 'POST',
                     'callback' => function(WP_REST_Request $request) {
+
+                        date_default_timezone_set(ini_get('date.timezone'));
 
                         $event_id = (int)$request->get_param('eventstat-check-event');
                         $user_id = (int)$request->get_param('eventstat-check-user');
@@ -229,6 +232,11 @@ window.eventstatClient.check(
                             } else throw $e;
 
                         }
+
+                        return [
+                            'code' => 0,
+                            'message' => 'Success.'
+                        ];
 
                     },
                     'permission_callback' => function(WP_REST_Request $request) {

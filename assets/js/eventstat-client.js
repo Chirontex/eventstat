@@ -4,8 +4,13 @@ const eventstatClient = {
     check: async (event, user, key) => {
         if (!eventstatClient.listener)
         {
-            eventstatClient.listenerAdd(event, user, key);
             eventstatClient.listener = true;
+
+            window.addEventListener('beforeunload', function(e) {
+                e.preventDefault();
+
+                eventstatClient.check(event, user, key);
+            }, false);
         }
 
         const data = new FormData;
@@ -49,10 +54,5 @@ const eventstatClient = {
         }
 
         if (byTimeout) setTimeout(eventstatClient.check, 300000, event, user, key);
-    },
-    listenerAdd: (event, user, key) => {
-        window.addEventListener('beforeunload', function(e) {
-            eventstatClient.check(event, user, key);
-        }, false);
     }
 };
