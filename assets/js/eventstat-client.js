@@ -37,7 +37,7 @@ const eventstatClient = {
             eventstatClient.emec = 0;
 
             if (answer.code == 0) console.log('eventstatClient.check(): success.');
-            else console.error('eventstatClient.check(): API error.');
+            else console.error('eventstatClient.check(): API error. "'+answer.message+'"');
         }
         else
         {

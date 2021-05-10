@@ -152,7 +152,7 @@ eventstatClient.check(
                 'eventstat-client',
                 $this->url.'assets/js/eventstat-client.js',
                 [],
-                '0.1.2'
+                '0.1.3'
             );
 
         });
@@ -179,10 +179,31 @@ eventstatClient.check(
                     'methods' => 'POST',
                     'callback' => function(WP_REST_Request $request) {
 
-                        date_default_timezone_set(ini_get('date.timezone'));
-
                         $event_id = (int)$request->get_param('eventstat-check-event');
                         $user_id = (int)$request->get_param('eventstat-check-user');
+
+                        $end_time = $this->wpdb->get_results(
+                            "SELECT t.meta_value
+                                FROM `".$this->wpdb->prefix."postmeta` AS t
+                                WHERE t.post_id = ".$event_id."
+                                AND t.meta_key = 'evcal_erow'",
+                            ARRAY_A
+                        );
+
+                        if (empty($end_time)) return [
+                            'code' => -99,
+                            'message' => 'Event not found.'
+                        ];
+
+                        $end_time = (int)$end_time[0]['meta_value'] + 3600;
+
+                        date_default_timezone_set('UTC');
+
+                        $end_time = date("Y-m-d H:i:s", $end_time);
+
+                        date_default_timezone_set(ini_get('date.timezone'));
+
+                        $end_time = strtotime($end_time);
 
                         $now = time();
 
@@ -207,10 +228,28 @@ eventstatClient.check(
 
                             $last_checking = strtotime($presence->last_checking);
 
-                            $presence->presence_time = date(
-                                "H:i:s",
-                                $presence_time + ($now - $last_checking)
-                            );
+                            if ($now > $end_time) {
+
+                                if ($last_checking < $end_time) {
+
+                                    $presence->presence_time = date(
+                                        "H:i:s",
+                                        $presence_time + ($end_time - $last_checking)
+                                    );
+
+                                } else return [
+                                    'code' => -98,
+                                    'message' => 'Event is over.'
+                                ];
+
+                            } else {
+
+                                $presence->presence_time = date(
+                                    "H:i:s",
+                                    $presence_time + ($now - $last_checking)
+                                );    
+
+                            }
 
                             $presence->last_checking = date("Y-m-d H:i:s", $now);
 
