@@ -1,6 +1,13 @@
 const eventstatClient = {
     emec: 0,
+    listener: false,
     check: async (event, user, key) => {
+        if (!eventstatClient.listener)
+        {
+            eventstatClient.listenerAdd(event, user, key);
+            eventstatClient.listener = true;
+        }
+
         const data = new FormData;
 
         data.append('eventstat-check-event', event);
@@ -42,5 +49,10 @@ const eventstatClient = {
         }
 
         if (byTimeout) setTimeout(eventstatClient.check, 300000, event, user, key);
+    },
+    listenerAdd: (event, user, key) => {
+        window.addEventListener('beforeunload', function(e) {
+            eventstatClient.check(event, user, key);
+        }, false);
     }
 };

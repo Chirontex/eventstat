@@ -96,10 +96,25 @@ class Main extends EntryPoint
 
             $now = time();
 
-            if ($now < $start_time ||
-                $now > $end_time) return $content;
+            if ($now > $end_time) return $content;
 
             ob_start();
+
+            if ($now < $start_time) {
+
+?>
+<script>
+setTimeout(() => {
+    window.eventstatClient.check(
+        <?= $event_id ?>,
+        <?= $user_id ?>,
+        '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>'
+    );
+}, <?= ($start_time - $now) * 1000 ?>);
+</script>
+<?php
+
+            } else {
 
 ?>
 <script>
@@ -108,16 +123,10 @@ window.eventstatClient.check(
     <?= $user_id ?>,
     '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>'
 );
-
-window.addEventListener('beforeunload', function(e) {
-    window.eventstatClient.check(
-        <?= $event_id ?>,
-        <?= $user_id ?>,
-        '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>'
-    );
-}, false);
 </script>
 <?php
+
+            }
 
             return ob_get_clean().$content;
 
@@ -142,7 +151,7 @@ window.addEventListener('beforeunload', function(e) {
                 'eventstat-client',
                 $this->url.'/assets/js/eventstat-client.js',
                 [],
-                '0.0.1'
+                '0.0.2'
             );
 
         });
