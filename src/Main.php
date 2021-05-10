@@ -23,7 +23,9 @@ class Main extends EntryPoint
 
         new PresenceTable;
 
-        $this->presenceTrackingInit();
+        $this
+            ->scriptAdd()
+            ->presenceTrackingInit();
         
         return $this;
 
@@ -74,9 +76,37 @@ class Main extends EntryPoint
 
             ob_start();
 
-            //
+?>
+<script>
+eventstatClient.check(<?= $event_id ?>, <?= $user_id ?>, '<?= md5('eventstat-client-check-'.$event_id.'-'.$user_id) ?>');
+</script>
+<?php
 
             return ob_get_clean().$content;
+
+        });
+
+        return $this;
+
+    }
+
+    /**
+     * Add client script.
+     * @since 0.0.6
+     * 
+     * @return $this
+     */
+    protected function scriptAdd() : self
+    {
+
+        add_action('wp_enqueue_scripts', function() {
+
+            wp_enqueue_script(
+                'eventstat-client',
+                $this->url.'/assets/js/eventstat-client.js',
+                [],
+                '0.0.1'
+            );
 
         });
 
