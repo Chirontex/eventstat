@@ -13,6 +13,7 @@ if (!defined('ABSPATH')) die;
         <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
             <div class="eventstat-column">
                 <form action="" method="post">
+                    <?php wp_nonce_field('eventstat-download-wpnp', 'eventstat-download') ?>
                     <div class="mb-3">
                         <label for="eventstat-download-event" class="form-label">
                             Выберите мероприятие
@@ -41,6 +42,7 @@ foreach (apply_filters('eventstat-download-events', []) as $event) {
             <div class="eventstat-column">
                 <h5 class="text-center mb-3">Добавить метаполе пользователей в статистику</h5>
                 <form action="" method="post">
+                    <?php wp_nonce_field('eventstat-matching-wpnp', 'eventstat-matching') ?>
                     <div class="mb-3">
                         <label for="eventstat-matching-place" class="form-label">
                             Порядковый номер
@@ -66,4 +68,34 @@ foreach (apply_filters('eventstat-download-events', []) as $event) {
             </div>
         </div>
     </div>
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Порядковый номер</th>
+                <th>Ключ</th>
+                <th>Псевдоним</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+<?php
+
+foreach (apply_filters('eventstat-matches-table', []) as $match) {
+
+?>
+            <tr id="eventstat-match-<?= $match->id ?>-row">
+                <td id="eventstat-match-<?= $match->id ?>-place"><?= $match->place ?></td>
+                <td id="eventstat-match-<?= $match->id ?>-key"><?= htmlspecialchars($match->key) ?></td>
+                <td id="eventstat-match-<?= $match->id ?>-alias"><?= htmlspecialchars($match->alias) ?></td>
+                <td id="eventstat-match-<?= $match->id ?>-edit">Редактировать</td>
+                <td id="eventstat-match-<?= $match->id ?>-delete">Удалить</td>
+            </tr>
+<?php
+
+}
+
+?>
+        </tbody>
+    </table>
 </div>

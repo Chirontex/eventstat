@@ -6,6 +6,7 @@
 namespace Eventstat;
 
 use Magnate\AdminPage;
+use Eventstat\Models\Matching;
 
 /**
  * Download page class.
@@ -15,10 +16,19 @@ class Download extends AdminPage
 {
 
     /**
+     * @var string $fail_nonce_notice
+     * Typical checking nonce failure notice text.
+     * @since 0.1.7
+     */
+    protected $fail_nonce_notice = 'Произошла ошибка при отправке формы. Пожалуйста, попробуйте ещё раз.';
+
+    /**
      * @since 0.1.3
      */
     protected function init() : self
     {
+
+        if (isset($_POST['eventstat-matching'])) $this->matchingSave();
 
         $this->filtersInit();
         
@@ -49,6 +59,71 @@ class Download extends AdminPage
             );
 
             return $events;
+
+        });
+
+        add_filter('eventstat-matches-table', function() {
+
+            return Matching::where([])->all();
+
+        });
+
+        return $this;
+
+    }
+
+    /**
+     * Saving the match.
+     * @since 0.1.7
+     * 
+     * @return $this
+     */
+    protected function matchingSave() : self
+    {
+
+        add_action('plugins_loaded', function() {
+
+            if (wp_verify_nonce(
+                $_POST['eventstat-matching'],
+                'eventstat-matching-wpnp'
+            ) === false) $this->notice(
+                'error',
+                $this->fail_nonce_notice
+            );
+            else {
+
+                $place = (int)$_POST['eventstat-matching-place'];
+
+                $key = (string)$_POST['eventstat-matching-meta-key'];
+
+                $alias = (string)$_POST['eventstat-matching-alias'];
+
+                if (empty($key) ||
+                    empty($alias)) {
+
+                    $this->notice(
+                        'error',
+                        'Не указан ключ или псевдоним метаполя.'
+                    );
+
+                    return;
+
+                }
+
+                $matching = new Matching;
+
+                $matching->place = $place;
+                $matching->key = $key;
+                $matching->alias = $alias;
+
+                $matching->save();
+
+                $this->notice(
+                    'success',
+                    'Сопоставление сохранено!'
+                );
+
+            }
 
         });
 
