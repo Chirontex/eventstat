@@ -86,7 +86,7 @@ foreach (apply_filters('eventstat-matches-table', []) as $match) {
 ?>
             <tr id="eventstat-match-<?= $match->id ?>-row">
                 <td id="eventstat-match-<?= $match->id ?>-place"><?= $match->place ?></td>
-                <td id="eventstat-match-<?= $match->id ?>-key"><?= htmlspecialchars($match->key) ?></td>
+                <td id="eventstat-match-<?= $match->id ?>-key"><?= htmlspecialchars($match->meta_key) ?></td>
                 <td id="eventstat-match-<?= $match->id ?>-alias"><?= htmlspecialchars($match->alias) ?></td>
                 <td id="eventstat-match-<?= $match->id ?>-edit">Редактировать</td>
                 <td id="eventstat-match-<?= $match->id ?>-delete">Удалить</td>

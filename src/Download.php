@@ -74,7 +74,7 @@ class Download extends AdminPage
 
     /**
      * Saving the match.
-     * @since 0.1.7
+     * @since 0.1.8
      * 
      * @return $this
      */
@@ -113,7 +113,7 @@ class Download extends AdminPage
                 $matching = new Matching;
 
                 $matching->place = $place;
-                $matching->key = $key;
+                $matching->meta_key = $key;
                 $matching->alias = $alias;
 
                 $matching->save();
