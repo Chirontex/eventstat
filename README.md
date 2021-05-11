@@ -1,1 +1,1 @@
-# Eventstat 0.1.5
+# Eventstat 0.1.6

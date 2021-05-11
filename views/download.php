@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) die;
 foreach (apply_filters('eventstat-download-events', []) as $event) {
 
 ?>
-                            <option value="<?= $event['ID'] ?>"><?= htmlspecialchars($event['post_title']) ?></option>
+                            <option value="<?= $event['ID'] ?>"><?= htmlspecialchars($event['post_title']).' ('.date("d.m.Y", $event['start_time']).')' ?></option>
 <?php
 
 }
