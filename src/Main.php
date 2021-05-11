@@ -46,6 +46,11 @@ class Main extends EntryPoint
                 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css',
                 [],
                 '5.0.0'
+            )->addStyle(
+                'eventstat-download',
+                $this->url.'assets/css/download.css',
+                [],
+                '0.0.3'
             )
         );
 
