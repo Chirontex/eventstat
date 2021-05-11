@@ -88,7 +88,7 @@ foreach (apply_filters('eventstat-matches-table', []) as $match) {
                 <td id="eventstat-match-<?= $match->id ?>-place"><?= $match->place ?></td>
                 <td id="eventstat-match-<?= $match->id ?>-key"><?= htmlspecialchars($match->meta_key) ?></td>
                 <td id="eventstat-match-<?= $match->id ?>-alias"><?= htmlspecialchars($match->alias) ?></td>
-                <td id="eventstat-match-<?= $match->id ?>-edit">Редактировать</td>
+                <td id="eventstat-match-<?= $match->id ?>-edit"><a href="javascript:void(0)" onclick="eventstat.matchUpdateOpen(<?= $match->id ?>);">Редактировать</a></td>
                 <td id="eventstat-match-<?= $match->id ?>-delete"><a href="javascript:void(0)" onclick="eventstat.matchDelete(<?= $match->id ?>);">Удалить</a></td>
             </tr>
 <?php
@@ -100,5 +100,8 @@ foreach (apply_filters('eventstat-matches-table', []) as $match) {
     </table>
     <form action="" method="post" id="eventstat-match-delete-form">
         <?php wp_nonce_field('eventstat-match-delete-wpnp', 'eventstat-match-delete') ?>
+    </form>
+    <form action="" method="post" id="eventstat-match-update-form">
+        <?php wp_nonce_field('eventstat-match-update-wpnp', 'eventstat-match-update') ?>
     </form>
 </div>

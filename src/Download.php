@@ -30,6 +30,7 @@ class Download extends AdminPage
 
         if (isset($_POST['eventstat-matching'])) $this->matchingSave();
         elseif (isset($_POST['eventstat-match-delete'])) $this->matchingDelete();
+        elseif (isset($_POST['eventstat-match-update'])) $this->matchingUpdate();
 
         $this->filtersInit();
         
@@ -172,6 +173,74 @@ class Download extends AdminPage
                 $this->notice(
                     'success',
                     'Сопоставление удалено!'
+                );
+
+            }
+
+        });
+
+        return $this;
+
+    }
+
+    /**
+     * Update match.
+     * @since 0.1.9
+     * 
+     * @return $this
+     */
+    protected function matchingUpdate() : self
+    {
+
+        add_action('plugins_loaded', function() {
+
+            if (wp_verify_nonce(
+                $_POST['eventstat-match-update'],
+                'eventstat-match-update-wpnp'
+            ) === false) $this->notice(
+                'error',
+                $this->fail_nonce_notice
+            );
+            else {
+
+                $id = (int)$_POST['eventstat-match-update-id'];
+                $place = (int)$_POST['eventstat-match-update-place'];
+                $key = (string)$_POST['eventstat-match-update-key'];
+                $alias = (string)$_POST['eventstat-match-update-alias'];
+
+                if (empty($id) ||
+                    empty($key) ||
+                    empty($alias)) {
+
+                    $this->notice(
+                        'error',
+                        'Недостаточно данных для обновления сопоставления.'
+                    );
+
+                    return;
+
+                }
+
+                $match = Matching::where(
+                    [
+                        [
+                            'id' => [
+                                'condition' => '= %d',
+                                'value' => $id
+                            ]
+                        ]
+                    ]
+                )->first();
+                
+                $match->place = $place;
+                $match->meta_key = $key;
+                $match->alias = $alias;
+
+                $match->save();
+
+                $this->notice(
+                    'success',
+                    'Сопоставление успешно обновлено!'
                 );
 
             }
