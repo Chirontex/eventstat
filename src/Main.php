@@ -53,6 +53,11 @@ class Main extends EntryPoint
                 $this->url.'assets/css/download.css',
                 [],
                 '0.0.3'
+            )->addScript(
+                'eventstat-download',
+                $this->url.'assets/js/download.js',
+                [],
+                '0.0.1'
             )
         );
 

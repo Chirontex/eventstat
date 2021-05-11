@@ -29,6 +29,7 @@ class Download extends AdminPage
     {
 
         if (isset($_POST['eventstat-matching'])) $this->matchingSave();
+        elseif (isset($_POST['eventstat-match-delete'])) $this->matchingDelete();
 
         $this->filtersInit();
         
@@ -121,6 +122,56 @@ class Download extends AdminPage
                 $this->notice(
                     'success',
                     'Сопоставление сохранено!'
+                );
+
+            }
+
+        });
+
+        return $this;
+
+    }
+
+    /**
+     * Delete matching.
+     * @since 0.1.8
+     * 
+     * @return $this
+     */
+    protected function matchingDelete() : self
+    {
+
+        add_action('plugins_loaded', function() {
+
+            if (wp_verify_nonce(
+                $_POST['eventstat-match-delete'],
+                'eventstat-match-delete-wpnp'
+            ) === false) $this->notice(
+                'error',
+                $this->fail_nonce_notice
+            );
+            else {
+
+                $id = (int)$_POST['eventstat-match-delete-id'];
+
+                if (empty($id)) {
+
+                    $this->notice(
+                        'error',
+                        'Неверный ID записи.'
+                    );
+
+                    return;
+
+                }
+
+                $match = Matching::find($id);
+
+                $match->delete();
+
+                $this->notice(
+                    'success',
+                    'Сопоставление удалено!'
                 );
 
             }

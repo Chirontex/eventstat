@@ -3,13 +3,13 @@
  * Plugin Name: Eventstat
  * Plugin URI: https://github.com/chirontex/eventstat
  * Description: Кастомная статистика мероприятий, созданных в плагине MyEventON.
- * Version: 0.1.7
+ * Version: 0.1.8
  * Author: Dmitry Shumilin
  * Author URI: mailto://chirontex@yandex.ru
  * 
  * @package Eventstat
  * @author Dmitry Shumilin (chirontex@yandex.ru)
- * @since 0.1.7
+ * @since 0.1.8
  */
 use Magnate\Injectors\EntryPointInjector;
 use Eventstat\Main;

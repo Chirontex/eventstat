@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "34af3632b3100e71ec0ac5834cd6e92a",
+    "content-hash": "3662455e3e8a4edc2f854ecbf4bf8792",
     "packages": [
         {
             "name": "ezyang/htmlpurifier",
@@ -133,16 +133,16 @@
         },
         {
             "name": "magnate/magnate",
-            "version": "0.9.2",
+            "version": "0.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/magnatefw/magnate.git",
-                "reference": "ed77722345227d0aa3eb3119990a7569547951e5"
+                "reference": "53e2ec546a970e7fc7f27fd6e1a4f167e56a5d90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/magnatefw/magnate/zipball/ed77722345227d0aa3eb3119990a7569547951e5",
-                "reference": "ed77722345227d0aa3eb3119990a7569547951e5",
+                "url": "https://api.github.com/repos/magnatefw/magnate/zipball/53e2ec546a970e7fc7f27fd6e1a4f167e56a5d90",
+                "reference": "53e2ec546a970e7fc7f27fd6e1a4f167e56a5d90",
                 "shasum": ""
             },
             "require": {
@@ -181,9 +181,9 @@
             ],
             "support": {
                 "issues": "https://github.com/magnatefw/magnate/issues",
-                "source": "https://github.com/magnatefw/magnate/tree/0.9.2"
+                "source": "https://github.com/magnatefw/magnate/tree/0.9.3"
             },
-            "time": "2021-05-08T21:18:05+00:00"
+            "time": "2021-05-11T10:20:08+00:00"
         },
         {
             "name": "markbaker/complex",
