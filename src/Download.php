@@ -6,7 +6,11 @@
 namespace Eventstat;
 
 use Magnate\AdminPage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Eventstat\Models\Matching;
+use Eventstat\Models\Presence;
 
 /**
  * Download page class.
@@ -31,6 +35,7 @@ class Download extends AdminPage
         if (isset($_POST['eventstat-matching'])) $this->matchingSave();
         elseif (isset($_POST['eventstat-match-delete'])) $this->matchingDelete();
         elseif (isset($_POST['eventstat-match-update'])) $this->matchingUpdate();
+        elseif (isset($_POST['eventstat-download'])) $this->downloadInit();
 
         $this->filtersInit();
         
@@ -248,6 +253,227 @@ class Download extends AdminPage
         });
 
         return $this;
+
+    }
+
+    /**
+     * Initialize downloading.
+     * @since 0.2.0
+     * 
+     * @return $this
+     */
+    protected function downloadInit() : self
+    {
+
+        add_action('plugins_loaded', function() {
+
+            if (wp_verify_nonce(
+                $_POST['eventstat-download'],
+                'eventstat-download-wpnp'
+            ) === false) $this->notice(
+                'error',
+                $this->fail_nonce_notice
+            );
+            else {
+
+                $event_id = (int)$_POST['eventstat-download-event'];
+
+                $presence = Presence::where(
+                    [
+                        [
+                            'event' => [
+                                'condition' => '= %d',
+                                'value' => $event_id
+                            ]
+                        ]
+                    ]
+                )->all();
+
+                if (empty($presence)) {
+
+                    $this->notice(
+                        'warning',
+                        'Статистика по указанному мероприятию отсутствует.'
+                    );
+
+                    return;
+
+                }
+
+                $spreadsheet = new Spreadsheet;
+
+                $worksheet = $spreadsheet->getSheet(0);
+
+                $worksheet->setTitle('Участники');
+
+                $worksheet->setCellValue('A1', 'Общее время присутствия');
+                $worksheet->setCellValue('B1', 'E-mail');
+
+                $matching = Matching::order(['place' => 'ASC'])->all();
+
+                $col = 3;
+
+                foreach ($matching as $match) {
+
+                    $worksheet
+                        ->getCell($this->getColumnName($col).'1')
+                            ->setValueExplicit(
+                                $match->alias,
+                                DataType::TYPE_STRING
+                            );
+
+                    $col += 1;
+
+                }
+
+                $col = 3;
+                $row = 2;
+
+                foreach ($presence as $attending) {
+
+                    $worksheet
+                        ->getCell('A'.$row)
+                            ->setValueExplicit(
+                                (string)$attending->presence_time,
+                                DataType::TYPE_STRING
+                            );
+
+                    $user = get_userdata((int)$attending->user_id);
+
+                    if ($user) {
+
+                        $worksheet
+                            ->getCell('B'.$row)
+                                ->setValueExplicit(
+                                    $user->user_email,
+                                    DataType::TYPE_STRING
+                                );
+
+                        foreach ($matching as $match) {
+
+                            $key = $match->meta_key;
+
+                            $worksheet
+                                ->getCell($this->getColumnName($col).$row)
+                                    ->setValueExplicit(
+                                        isset($user->$key) ?
+                                            $user->$key : '',
+                                        DataType::TYPE_STRING
+                                    );
+
+                            $col += 1;
+
+                        }
+
+                    }
+
+                    $row += 1;
+                    $col = 3;
+
+                }
+
+                if (!file_exists($this->path.'temp/')) {
+
+                    if (!mkdir($this->path.'temp/')) {
+
+                        $this->notice(
+                            'error',
+                            'Нет доступа к временной директории. Пожалуйста, обратитесь к администратору.'
+                        );
+
+                        return;
+
+                    }
+
+                }
+
+                $ch_arr = array_merge(range('a', 'z'), range(0, 9));
+
+                do {
+
+                    $filename = '';
+
+                    for ($i = 0; $i < 32; $i++) {
+
+                        $filename .= $ch_arr[rand(0, count($ch_arr) - 1)];
+
+                    }
+
+                    $filename .= '.xlsx';
+
+                } while (file_exists($this->path.'temp/'.$filename));
+
+                $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+                $writer->save($this->path.'temp/'.$filename);
+
+                unset($spreadsheet);
+                unset($writer);
+
+                $file = file_get_contents($this->path.'temp/'.$filename);
+
+                unlink($this->path.'temp/'.$filename);
+
+                header('Content-type: application; charset=utf-8');
+                header('Content-disposition: attachment; filename=statistics.xlsx');
+
+                echo $file;
+
+                die;
+
+            }
+
+        });
+
+        return $this;
+
+    }
+
+    /**
+     * Calculates a column name by it's periodic number.
+     * @since 0.2.0
+     * 
+     * @param int $number
+     * If $number lesser than 1 or bigger than 650,
+     * the method will return an empty string.
+     * 
+     * @return string
+     */
+    protected function getColumnName(int $number) : string
+    {
+
+        $name = '';
+
+        if ($number > 0) {
+
+            $alphabet = range('A', 'Z');
+
+            if ($number <= count($alphabet)) $name = $alphabet[$number - 1];
+            else {
+
+                $fi = 0;
+
+                $dif = $number - count($alphabet);
+
+                while ($dif > count($alphabet)) {
+
+                    $fi += 1;
+
+                    $dif = $dif - count($alphabet);
+
+                }
+
+                if ($fi <= count($alphabet)) {
+
+                    $name .= $alphabet[$fi];
+                    $name .= $alphabet[$dif - 1];
+
+                }
+
+            }
+
+        }
+
+        return $name;
 
     }
 
