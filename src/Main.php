@@ -10,6 +10,7 @@ use Magnate\Injectors\EntryPointInjector;
 use Magnate\Injectors\AdminPageInjector;
 use Magnate\Exceptions\ActiveRecordCollectionException;
 use Eventstat\Tables\PresenceTable;
+use Eventstat\Tables\MatchingTable;
 use Eventstat\Models\Presence;
 use WP_REST_Request;
 
@@ -27,6 +28,7 @@ class Main extends EntryPoint
     {
 
         new PresenceTable;
+        new MatchingTable;
 
         new Download(
             new EntryPointInjector(
