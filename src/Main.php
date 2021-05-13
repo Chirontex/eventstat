@@ -399,7 +399,10 @@ eventstatClient.check(
 
                                 $presence->save();
 
-                            } else throw $e;
+                            } else return [
+                                'code' => $e->getCode(),
+                                'message' => $e->getMessage()
+                            ];
 
                         }
 
@@ -427,12 +430,72 @@ eventstatClient.check(
                     'methods' => 'POST',
                     'callback' => function(WP_REST_Request $request) {
 
+                        $post_id = (int)$request->get_param('eventstat-button-event');
+                        $user_id = (int)$request->get_param('eventstat-button-user');
 
+                        if (empty($post_id) ||
+                            empty($user_id)) return [
+                                'code' => -99,
+                                'message' => 'Too few arguments for this argument.'
+                            ];
+
+                        date_default_timezone_set(ini_get('date.timezone'));
+
+                        $now = time();
+
+                        try {
+
+                            $presence = Presence::where(
+                                [
+                                    [
+                                        'user_id' => [
+                                            'condition' => '= %d',
+                                            'value' => $user_id
+                                        ],
+                                        'event' => [
+                                            'condition' => '= %d',
+                                            'value' => $post_id
+                                        ]
+                                    ]
+                                ]
+                            )->first();
+
+                            $presence->clicks += 1;
+                            $presence->last_checking = date("Y-m-d H:i:s", $now);
+
+                            $presence->save();
+
+                        } catch (ActiveRecordCollectionException $e) {
+
+                            if ($e->getCode() === -9) {
+
+                                $presence = new Presence;
+
+                                $presence->user_id = $user_id;
+                                $presence->event = $post_id;
+                                $presence->presence_time = '00:00:00';
+                                $presence->clicks = 1;
+                                $presence->last_checking = date("Y-m-d H:i:s", $now);
+
+                            } else return [
+                                'code' => $e->getCode(),
+                                'message' => $e->getMessage()
+                            ];
+
+                        }
+
+                        return [
+                            'code' => 0,
+                            'message' => 'Success.'
+                        ];
 
                     },
                     'permission_callback' => function(WP_REST_Request $request) {
 
-
+                        return $request->get_param('eventstat-button-key') ===
+                            md5('eventstat-button-'.
+                                $request->get_param('eventstat-button-event').'-'.
+                                    $request->get_param('eventstat-button-user'));
 
                     }
                 ]
