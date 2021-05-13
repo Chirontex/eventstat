@@ -299,6 +299,7 @@ eventstatClient.check(
                                 $presence->user_id = $user_id;
                                 $presence->event = $event_id;
                                 $presence->presence_time = '00:00:00';
+                                $presence->clicks = 0;
                                 $presence->last_checking = date("Y-m-d H:i:s", $now);
 
                                 $presence->save();

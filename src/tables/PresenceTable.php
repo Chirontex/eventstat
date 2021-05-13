@@ -24,6 +24,7 @@ class PresenceTable extends Migration
             ->field('user_id', 'BIGINT(20) UNSIGNED NOT NULL')
             ->field('event', 'BIGINT(20) UNSIGNED NOT NULL')
             ->field('presence_time', 'TIME NOT NULL')
+            ->field('clicks', 'MEDIUMINT(10) UNSIGNED NOT NULL')
             ->field('last_checking', 'DATETIME NOT NULL');
         
         return $this;

@@ -71,7 +71,7 @@ class Download extends AdminPage
 
         add_filter('eventstat-matches-table', function() {
 
-            return Matching::where([])->all();
+            return Matching::order(['place' => 'ASC'])->all();
 
         });
 
