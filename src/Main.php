@@ -102,18 +102,24 @@ class Main extends EntryPoint
 
             $content = explode('|||', $content);
 
-            $start = $post->evcal_srow;
-            $end = $post->evcal_erow;
+            date_default_timezone_set('GMT');
 
-            date_default_timezone_set('UTC');
+            $start = date("Y-m-d H:i:s", $post->evcal_srow);
+            $end = date("Y-m-d H:i:s", $post->evcal_erow);
 
-            $now = time();
+            date_default_timezone_set($post->_evo_tz);
+            
+            $now = time();            
+
+            $start = strtotime($start);
+            $end = strtotime($end);
 
             if ($now > $end) return;
 
             $available_clicks = (int)(($end - ($now > $start ? $now : $start))/900);
 
-            $id = empty($atts['id']) ?? 'eventstat-presence-button';
+            $id = empty($atts['id']) ?
+                'eventstat-presence-button' : $atts['id'];
 
             ob_start();
 
