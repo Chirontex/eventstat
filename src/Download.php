@@ -307,11 +307,12 @@ class Download extends AdminPage
                 $worksheet->setTitle('Участники');
 
                 $worksheet->setCellValue('A1', 'Общее время присутствия');
-                $worksheet->setCellValue('B1', 'E-mail');
+                $worksheet->setCellValue('B1', 'Нажатий на кнопку подтверждения');
+                $worksheet->setCellValue('C1', 'E-mail');
 
                 $matching = Matching::order(['place' => 'ASC'])->all();
 
-                $col = 3;
+                $col = 4;
 
                 foreach ($matching as $match) {
 
@@ -326,7 +327,7 @@ class Download extends AdminPage
 
                 }
 
-                $col = 3;
+                $col = 4;
                 $row = 2;
 
                 foreach ($presence as $attending) {
@@ -338,12 +339,19 @@ class Download extends AdminPage
                                 DataType::TYPE_STRING
                             );
 
+                    $worksheet
+                        ->getCell('B'.$row)
+                            ->setValueExplicit(
+                                (string)$attending->clicks,
+                                DataType::TYPE_STRING
+                            );
+
                     $user = get_userdata((int)$attending->user_id);
 
                     if ($user) {
 
                         $worksheet
-                            ->getCell('B'.$row)
+                            ->getCell('C'.$row)
                                 ->setValueExplicit(
                                     $user->user_email,
                                     DataType::TYPE_STRING
