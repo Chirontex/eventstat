@@ -1,5 +1,6 @@
 const eventstatClient = {
     emec: 0,
+    availableClicks: 0,
     listener: false,
     check: async (event, user, key) => {
         if (!eventstatClient.listener)

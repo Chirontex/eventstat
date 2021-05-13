@@ -64,8 +64,88 @@ class Main extends EntryPoint
         $this
             ->apiInit()
             ->scriptAdd()
+            ->buttonShortcodeInit()
             ->presenceTrackingInit();
         
+        return $this;
+
+    }
+
+    /**
+     * Initialize button shortcode.
+     * @since 1.0.2
+     * 
+     * @return $this
+     */
+    protected function buttonShortcodeInit() : self
+    {
+
+        add_shortcode('es-button', function($atts, $content) {
+
+            $atts = shortcode_atts([
+                'event' => '',
+                'class' => '',
+                'style' => '',
+                'id' => ''
+            ], $atts);
+
+            $post_id = (int)$atts['event'];
+
+            $post = get_post($post_id);
+
+            $user_id = get_current_user_id();
+
+            if (empty($post) ||
+                empty($user_id)) return;
+
+            if (strpos($content, '|||') === false) $content = 'Подтвердите присутствие|||Подтверждение пока не требуется';
+
+            $content = explode('|||', $content);
+
+            $start = $post->evcal_srow;
+            $end = $post->evcal_erow;
+
+            date_default_timezone_set('UTC');
+
+            $now = time();
+
+            if ($now > $end) return;
+
+            $available_clicks = (int)(($end - ($now > $start ? $now : $start))/900);
+
+            $id = empty($atts['id']) ?? 'eventstat-presence-button';
+
+            ob_start();
+
+?>
+<script>
+eventstatClient.availableClicks = <?= $available_clicks ?>;
+</script>
+<button type="button" id="<?= htmlspecialchars($id) ?>" class="<?= htmlspecialchars($atts['class']) ?>" style="<?= htmlspecialchars($atts['style']) ?>" onclick="eventstatClient.click(<?= $post_id ?>, <?= $user_id ?>, '<?= md5('eventstat-button-'.$post_id.'-'.$user_id) ?>');"><?= $content[0] ?></button>
+<?php
+
+            if ($now < $start) {
+
+?>
+<script>
+document.getElementById('<?= htmlspecialchars($id) ?>').setAttribute('disabled', 'true');
+setTimeout(
+    () => {
+        const button = document.getElementById('<?= htmlspecialchars($id) ?>');
+
+        if (button.hasAttribute('disabled')) button.removeAttribute('disabled');
+    },
+    <?= ($start - $now) * 1000 ?>
+);
+</script>
+<?php
+
+            }
+
+            return ob_get_clean();
+
+        });
+
         return $this;
 
     }
