@@ -467,7 +467,6 @@ eventstatClient.check(
                             )->first();
 
                             $presence->clicks += 1;
-                            $presence->last_checking = date("Y-m-d H:i:s", $now);
 
                             $presence->save();
 
