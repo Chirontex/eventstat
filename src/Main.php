@@ -121,10 +121,15 @@ class Main extends EntryPoint
 <script>
 eventstatClient.availableClicks = <?= $available_clicks ?>;
 </script>
-<button type="button" id="<?= htmlspecialchars($id) ?>" class="<?= htmlspecialchars($atts['class']) ?>" style="<?= htmlspecialchars($atts['style']) ?>" onclick="eventstatClient.click(<?= $post_id ?>, <?= $user_id ?>, '<?= md5('eventstat-button-'.$post_id.'-'.$user_id) ?>');"><?= $content[0] ?></button>
+<button type="button" id="<?= htmlspecialchars($id) ?>" class="<?= htmlspecialchars($atts['class']) ?>" style="<?= htmlspecialchars($atts['style']) ?>" disabled="true" onclick="eventstatClient.click('<?= htmlspecialchars($id) ?>', <?= $post_id ?>, <?= $user_id ?>, '<?= md5('eventstat-button-'.$post_id.'-'.$user_id) ?>');">
+    <span id="<?= htmlspecialchars($id) ?>-content-0"><?= $content[0] ?></span>
+    <span id="<?= htmlspecialchars($id) ?>-content-1" style="display: none;"><?= $content[1] ?></span>
+</button>
 <?php
 
-            if ($now < $start) {
+            if ($available_clicks > 0) {
+
+                if ($now < $start) {
 
 ?>
 <script>
@@ -139,6 +144,16 @@ setTimeout(
 );
 </script>
 <?php
+
+                } else {
+
+?>
+<script>
+document.getElementById('<?= htmlspecialchars($id) ?>').removeAttribute('disabled');
+</script>
+<?php
+
+                }
 
             }
 
@@ -267,7 +282,7 @@ eventstatClient.check(
                 'eventstat-client',
                 $this->url.'assets/js/eventstat-client.js',
                 [],
-                '0.1.3'
+                '0.1.4'
             );
 
         });
@@ -400,6 +415,24 @@ eventstatClient.check(
                             md5('eventstat-client-check-'.
                                 $request->get_param('eventstat-check-event').
                                 '-'.$request->get_param('eventstat-check-user'));
+
+                    }
+                ]
+            );
+
+            register_rest_route(
+                'eventstat/v1',
+                '/click',
+                [
+                    'methods' => 'POST',
+                    'callback' => function(WP_REST_Request $request) {
+
+
+
+                    },
+                    'permission_callback' => function(WP_REST_Request $request) {
+
+
 
                     }
                 ]
