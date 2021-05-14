@@ -376,7 +376,7 @@ class Download extends AdminPage
                     }
 
                     $row += 1;
-                    $col = 3;
+                    $col = 4;
 
                 }
 

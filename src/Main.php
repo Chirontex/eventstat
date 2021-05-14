@@ -127,7 +127,7 @@ class Main extends EntryPoint
 <script>
 eventstatClient.availableClicks = <?= $available_clicks ?>;
 </script>
-<button type="button" id="<?= htmlspecialchars($id) ?>" class="<?= htmlspecialchars($atts['class']) ?>" style="<?= htmlspecialchars($atts['style']) ?>" disabled="true" onclick="eventstatClient.click('<?= htmlspecialchars($id) ?>', <?= $post_id ?>, <?= $user_id ?>, '<?= md5('eventstat-button-'.$post_id.'-'.$user_id) ?>');">
+<button type="button" id="<?= htmlspecialchars($id) ?>" class="<?= htmlspecialchars($atts['class']) ?>" style="<?= htmlspecialchars($atts['style']) ?>" <?= $now < $start || $available_clicks === 0 ? 'disabled="true" ' : '' ?>onclick="eventstatClient.click('<?= htmlspecialchars($id) ?>', <?= $post_id ?>, <?= $user_id ?>, '<?= md5('eventstat-button-'.$post_id.'-'.$user_id) ?>');">
     <span id="<?= htmlspecialchars($id) ?>-content-0"><?= $content[0] ?></span>
     <span id="<?= htmlspecialchars($id) ?>-content-1" style="display: none;"><?= $content[1] ?></span>
 </button>
@@ -139,7 +139,6 @@ eventstatClient.availableClicks = <?= $available_clicks ?>;
 
 ?>
 <script>
-document.getElementById('<?= htmlspecialchars($id) ?>').setAttribute('disabled', 'true');
 setTimeout(
     () => {
         const button = document.getElementById('<?= htmlspecialchars($id) ?>');
@@ -148,14 +147,6 @@ setTimeout(
     },
     <?= ($start - $now) * 1000 ?>
 );
-</script>
-<?php
-
-                } else {
-
-?>
-<script>
-document.getElementById('<?= htmlspecialchars($id) ?>').removeAttribute('disabled');
 </script>
 <?php
 
@@ -288,7 +279,7 @@ eventstatClient.check(
                 'eventstat-client',
                 $this->url.'assets/js/eventstat-client.js',
                 [],
-                '0.1.4'
+                '0.1.5'
             );
 
         });

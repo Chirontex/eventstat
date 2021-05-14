@@ -59,6 +59,8 @@ const eventstatClient = {
     click: async (buttonId, event, user, key) => {
         const button = document.getElementById(buttonId);
 
+        button.setAttribute('disabled', 'true');
+
         const span = document.createElement('span');
         span.setAttribute('id', buttonId+'-wait');
 
@@ -96,8 +98,6 @@ const eventstatClient = {
         button.removeChild(span);
 
         document.getElementById(buttonId+'-content-1').removeAttribute('style');
-
-        button.setAttribute('disabled', 'true');
 
         eventstatClient.availableClicks -= 1;
 
